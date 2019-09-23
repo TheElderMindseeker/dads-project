@@ -123,4 +123,7 @@ psd
 thumb
 sketch
 
+# VS Code stuff
+*.code-workspace
+
 # End of https://www.gitignore.io/api/react,python
