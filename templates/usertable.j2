@@ -1,0 +1,35 @@
+{% extends "admin.j2" %}
+
+{% block navbar %}
+<li class="nav-item active">
+  <a class="nav-link" href="#">User List</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="#">Logout</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-sm">
+      <table class="table">
+        <thead>
+          <th scope="col">#</th>
+          <th scope="col">Email address</th>
+          <th scope="col">Is admin</th>
+        </thead>
+        <tbody>
+          {% for user in users %}
+          <tr>
+            <th scope="row">{{ loop.index }}</th>
+            <td>user.email</td>
+            <td>{{ 'Yes' if user.is_admin else 'No' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
