@@ -1,6 +1,7 @@
 """Root module with application factory function"""
 from flask import Flask
 
+from src.extensions import *
 from src.views import views
 
 
@@ -9,4 +10,8 @@ def create_app():
     app = Flask(__name__)
     app.config.from_pyfile("../config/debug.py")
     app.register_blueprint(views)
+
+    db.init_app(app)
+    bcrypt.init_app(app)
+
     return app
