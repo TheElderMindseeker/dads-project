@@ -7,10 +7,10 @@ from livebook.models import db
 from livebook.views import views
 
 
-def create_app():
+def create_app(config_scheme='debug'):
     """Application factory function"""
     app = Flask(__name__)
-    app.config.from_pyfile("../config/debug.py")
+    app.config.from_pyfile("../config/{}.py".format(config_scheme))
     app.register_blueprint(views)
 
     db.init_app(app)

@@ -8,6 +8,7 @@ pylint = "*"
 yapf = "*"
 flask-migrate = "*"
 pytest = "*"
+livebook = {editable = true,path = "."}
 
 [packages]
 flask = "*"

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "9963404b756678fdea92af55b28d770eca6a44f034039dc9574923d63d7de253"
+            "sha256": "90a1815421a9c6f17008c0fdd4163b95419d674bc8586265c46179571b899b12"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -308,6 +308,10 @@
                 "sha256:fd135b8d35dfdcdb984828c84d695937e58cc5f49e1c854eb311c4d6aa03f4f1"
             ],
             "version": "==1.4.2"
+        },
+        "livebook": {
+            "editable": true,
+            "path": "."
         },
         "mako": {
             "hashes": [
