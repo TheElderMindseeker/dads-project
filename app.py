@@ -1,5 +1,5 @@
 """Launch script for the application"""
-from src import create_app
+from livebook import create_app
 
 app = create_app()  # pylint: disable=invalid-name
 

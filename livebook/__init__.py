@@ -1,8 +1,8 @@
 """Root module with application factory function"""
 from flask import Flask
 
-from src.extensions import *
-from src.views import views
+from livebook.extensions import *
+from livebook.views import views
 
 
 def create_app():
