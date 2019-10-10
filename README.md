@@ -20,5 +20,5 @@ Both utilities are locked in Pipenv dev-dependencies so it should not be a probl
 To simply run the code in order to make sure it works use the following command in the root directory:
 
 ```bash
-pipenv run python app.py
+pipenv run python livebook_run.py
 ```
