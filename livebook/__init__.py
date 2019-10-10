@@ -3,6 +3,7 @@ from flask import Flask
 from flask_migrate import Migrate
 
 from livebook.extensions import *
+from livebook.models import db
 from livebook.views import views
 
 

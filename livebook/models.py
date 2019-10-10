@@ -1,10 +1,13 @@
 """Database models for the application"""
 # pylint: disable=no-member,too-few-public-methods
-from livebook.extensions import db
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()  # pylint: disable=invalid-name
 
 
 class User(db.Model):
     """User account in the application"""
+    # pylint: disable=missing-function-docstring,no-self-use
     __tablename__ = "user_accounts"
 
     id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -25,5 +28,4 @@ class User(db.Model):
         return False
 
     def is_authenticated(self):
-        # TODO: Figure a good way to deal with this part
         return True
