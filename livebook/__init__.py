@@ -1,5 +1,6 @@
 """Root module with application factory function"""
 from flask import Flask
+from flask_migrate import Migrate
 
 from livebook.extensions import *
 from livebook.views import views
@@ -12,6 +13,7 @@ def create_app():
     app.register_blueprint(views)
 
     db.init_app(app)
+    Migrate(app, db)
     bcrypt.init_app(app)
 
     return app
