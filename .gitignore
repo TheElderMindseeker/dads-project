@@ -125,6 +125,7 @@ sketch
 
 # VS Code stuff
 *.code-workspace
+.vscode/
 
 # Local migrations folder
 local-migrations/
