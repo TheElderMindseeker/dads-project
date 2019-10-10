@@ -13,3 +13,17 @@ class User(db.Model):
     # If I understood correctly, 256 is the commonly used hash result length
     password = db.Column(db.String(256), nullable=False)
     admin = db.Column(db.Boolean(), nullable=False, default=False)
+
+    def is_active(self):
+        return True
+
+    def get_id(self):
+        return self.email
+
+    def is_anonymous(self):
+        """False, as anonymous users aren't supported."""
+        return False
+
+    def is_authenticated(self):
+        # TODO: Figure a good way to deal with this part
+        return True
