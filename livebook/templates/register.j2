@@ -7,9 +7,7 @@
       <div class="card card-signin my-5">
         <div class="card-body">
           <h5 class="card-title text-center">Sign Up</h5>
-          <form class="form-signin"
-            action="{{ url_for('views.register') }}" method="POST"
-            oninput='passwordConfirm.setCustomValidity(passwordConfirm.value != password.value ? "Passwords do not match." : "")'>
+          <form class="form-signin" action="{{ url_for('views.register') }}" method="POST">
             <div class="form-label-group">
               <input type="email" id="inputEmail" name="email" class="form-control" placeholder="Email address"
               required autofocus>
@@ -22,17 +20,13 @@
               <label for="inputPassword">Password</label>
             </div>
 
-            <div class="form-label-group">
+            {# <div class="form-label-group">
               <input type="password" id="inputPasswordConfirm" name="passwordConfirm" class="form-control"
                 placeholder="Confirm Password" required>
               <label for="inputPasswordConfirm">Confirm password</label>
-            </div>
+            </div> #}
 
-            <div class="custom-control custom-checkbox mb-3">
-              <input type="checkbox" class="custom-control-input" id="customCheck1">
-              <label class="custom-control-label" for="customCheck1">Remember password</label>
-            </div>
-            <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Sign in</button>
+            <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Sign up</button>
           </form>
         </div>
       </div>

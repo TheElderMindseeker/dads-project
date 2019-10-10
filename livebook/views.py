@@ -23,6 +23,7 @@ def register():
     user_check = User.query.filter_by(email=data['email']).first()
     if user_check is None:
         # pylint: disable=no-member
+        # FIXME: generate_password_hash returns bytes which can bring possible hash check problem during login
         new_user = User(email=data['email'], password=bcrypt.generate_password_hash(data['password']), admin=False)
         db.session.add(new_user)
         db.session.commit()
