@@ -27,3 +27,28 @@ class User(db.Model):
     def is_authenticated(self):
         # TODO: Figure a good way to deal with this part
         return True
+
+
+class Adventure(db.Model):
+    # Complete adventure, consisting of multiple Scenes, the player character and stats
+    pass
+
+
+class Character(db.Model):
+    # Character info and stats info
+    pass
+
+
+class Stat(db.Model):
+    # Name and values for character stats, as well as any attached oath descriptions
+    pass
+
+
+class AdventureScene(db.Model):
+    # A single scene of an adventure - the scene description and possible options
+    pass
+
+
+class Option(db.Model):
+    # An option for a scene and where it transitions, along with any attached stat increases/decreases
+    pass
