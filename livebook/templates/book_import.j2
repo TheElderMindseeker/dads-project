@@ -1,0 +1,21 @@
+{% extends "nav_page.j2" %}
+{% block navbar %}
+  <li class="nav-item">
+    <a class="nav-link" href="#">Books</a>
+  </li>
+  <li class="nav-item active">
+    <a class="nav-link" href="#">Import</a>
+  </li>
+{% endblock %}
+{% block content %}
+  <div class="container">
+    <form>
+      <div class="form-group">
+        <label for="">Google Sheets link</label>
+        <input type="text" class="form-control" id="sheetLink" name="link">
+        <small id="linkHelp" class="form-text text-muted">Insert link to the book defined in Google Sheets here</small>
+      </div>
+      <button type="submit" class="btn btn-primary">Import</button>
+    </form>
+  </div>
+{% endblock %}

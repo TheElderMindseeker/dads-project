@@ -1,0 +1,24 @@
+{% extends "nav_page.j2" %}
+{% block navbar %}
+  <li class="nav-item active">
+    <a class="nav-link" href="#">Books</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#">Import</a>
+  </li>
+{% endblock %}
+{% block content %}
+  <div class="container">
+    <div class="row">
+      {% for book in books %}
+        <div class="card col-4">
+          <div class="card-body">
+            <h5 class="card-title">{{book.title}}</h5>
+            <p class="card-text">{{book.description}}</p>
+            <a href="#" class="btn btn-primary">Play</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}
