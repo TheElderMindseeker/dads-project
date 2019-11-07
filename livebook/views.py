@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, request
 from flask_login import current_user, login_user
 
 from livebook.extensions import bcrypt
-from livebook.models import User, db
+from livebook.models import User, db, UserAdventure, AttrInfo
 
 views = Blueprint('views', __name__)  # pylint: disable=invalid-name
 
@@ -51,3 +51,31 @@ def login():
         login_user(user, remember=remember)
         return "logged in"
     return "failed to log in"
+
+
+@views.route('/attribute', methods=['GET', 'POST'])
+def attribute():
+    data = request.json
+    user_adventure = UserAdventure.query.filter_by(user_id=data['user_id'],
+                                        adventure=data['adventure']).first_or_404(description='no such user or adventure')
+    attr_info = AttrInfo.query.filter_by(user_adventure_id=user_adventure.id,
+                                    alias=data['alias']).first_or_404(description='no such user, adventure or attribute')
+    if request.method == 'GET':
+        return f'<h1>The value of {data["alias"]} is {attr_info.value}</h1>'
+
+    attr_info.value = data['value']
+    db.session.commit()
+    return "successfully changed the attr"
+
+
+@views.route('/scene', methods=['GET', 'POST'])
+def scene():
+    data = request.json
+    user_adventure = UserAdventure.query.filter_by(user_id=data['user_id'],
+                                        adventure=data['adventure']).first_or_404(description='no such user or adventure')
+    if request.method == 'GET':
+        return f'<h1>The scene is {user_adventure.scene}</h1>'
+
+    user_adventure.scene = data['scene']
+    db.session.commit()
+    return "successfully changed the scene"
