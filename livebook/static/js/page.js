@@ -3,7 +3,7 @@ function chooseOption(optionIndex) {
 }
 
 function setupScene(sceneData) {
-    $('#navText').html(sceneData.description)
+    $('#navText').html(sceneData.description.replace('\n', '<br>'))
     sceneData.options.forEach((item, index) => {
         $('#optionsList').empty()
         $('<a>', {
@@ -30,6 +30,7 @@ function setupAttributes(playerData) {
     for (var stat in currentStats) {
         if (Object.prototype.hasOwnProperty.call(currentStats, stat)) {
             let tableRow = $('<tr>')
+            tableRow.appendTo('#attributeTable')
             $('<td>', { text: stat }).appendTo(tableRow)
             let valueCell = $('<td>')
             valueCell.appendTo(tableRow)
@@ -37,16 +38,20 @@ function setupAttributes(playerData) {
                 class: 'btn btn-sm btn-outline-danger',
                 click: function (event) {
                     event.preventDefault()
-                    changeAttributeValue(`#${stat}Value`, -1)
-                }
+                    changeAttributeValue($(this).data('target'), -1)
+                },
+                'data-target': `#${stat}Value`,
+                text: '-'
             }).appendTo(valueCell)
-            $('span', { id: `${stat}Value`, text: currentStats[stat] }).appendTo(valueCell)
+            $('<span>', { id: `${stat}Value`, text: currentStats[stat] }).appendTo(valueCell)
             $('<button>', {
                 class: 'btn btn-sm btn-outline-success',
                 click: function (event) {
                     event.preventDefault()
-                    changeAttributeValue(`#${stat}Value`, +1)
-                }
+                    changeAttributeValue($(this).data('target'), +1)
+                },
+                'data-target': `#${stat}Value`,
+                text: '+'
             }).appendTo(valueCell)
         }
     }
@@ -62,7 +67,7 @@ function initPage(playerData) {
             setupScene(data)
         },
         error: function (_, _, errorThrown) {
-            $('#errorMessage').html(`Error occurred on /player request: ${errorThrown}`)
+            $('#errorMessage').html(`Error occurred on /adventure/scene request: ${errorThrown}`)
         }
     })
 }
