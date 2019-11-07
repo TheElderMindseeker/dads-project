@@ -1,12 +1,9 @@
 """Contains application views"""
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify
 from flask_login import current_user, login_user, login_required
-from flask import Blueprint, render_template, request, jsonify
-from flask_login import current_user, login_user
 
 from livebook.extensions import bcrypt
 from livebook.models import User, db, UserAdventure, AttrInfo
-from livebook.models import User, db
 from livebook.parsers.google_sheets.parser import read_stats, read_initial_scenes, get_scene_names, read_scene
 
 views = Blueprint('views', __name__)  # pylint: disable=invalid-name
