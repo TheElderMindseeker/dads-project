@@ -20,6 +20,9 @@ class User(db.Model):
     password = db.Column(db.String(256), nullable=False)
     admin = db.Column(db.Boolean(), nullable=False, default=False)
 
+    attributes = db.relationship('GameInfo', backref=db.backref('user', lazy=False), lazy=True)
+
+    scenes = db.relationship('SceneInfo', backref=db.backref('user', lazy=False), lazy=True)
     def is_active(self):
         return True
 
@@ -34,6 +37,25 @@ class User(db.Model):
         return True
 
 
+class GameInfo(db.Model):
+    # pylint: disable=missing-function-docstring,no-self-use
+    __tablename__ = "game_info"
+    user_id = db.Column(db.Integer, db.ForeignKey('user_accounts.id'), nullable=False, primary_key=True)
+    adventure = db.Column(db.String(100), primary_key=True)
+    "alias is the name of the attribute from the developer's perspective"
+    alias = db.Column(db.String(100), primary_key=True)
+    value = db.Column(db.Integer, nullable=False)
+    __table_args__ = (db.CheckConstraint(value >= 0, name="value of the attribute must be non-negative"), {})
+
+
+class SceneInfo(db.Model):
+    # pylint: disable=missing-function-docstring,no-self-use
+    user_id = db.Column(db.Integer, db.ForeignKey('user_accounts.id'), nullable=False, primary_key=True)
+    adventure = db.Column(db.String(100), primary_key=True)
+    scene = db.Column(db.String(100), nullable=False)
+
+
+
 @click.command('init-db')
 @with_appcontext
 def init_db():
@@ -45,4 +67,20 @@ def init_db():
         create_database(db.engine.url)
     db.drop_all()
     db.create_all()
+
+
+@click.command('gen-data')
+@with_appcontext
+def gen_data():
+    user = User(email='johny',
+            password='passwd',
+            admin=False)
+    db.session.add(user)
+    db.session.commit()
+    game_info = GameInfo(user_id=user.id, adventure='link', alias='strength', value=11)
+    db.session.add(game_info)
+    db.session.commit()
+    scene_info = SceneInfo(user_id=user.id, adventure='link', scene='home')
+    db.session.add(scene_info)
+    db.session.commit()
 

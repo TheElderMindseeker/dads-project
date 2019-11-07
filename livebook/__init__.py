@@ -3,7 +3,7 @@ from flask import Flask
 from flask_migrate import Migrate
 
 from livebook.extensions import *
-from livebook.models import db, init_db
+from livebook.models import db, init_db, gen_data
 from livebook.views import views
 
 
@@ -22,5 +22,5 @@ def create_app(config_scheme='debug'):
 
     # Additional processing
     app.cli.add_command(init_db)
-
+    app.cli.add_command(gen_data)
     return app
