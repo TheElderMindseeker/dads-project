@@ -24,6 +24,11 @@
                 <input type="checkbox" class="custom-control-input" id="customCheck1" name="remember">
                 <label class="custom-control-label" for="customCheck1">Remember password</label>
               </div>
+
+              {% if next is not none() %}
+                <input type="hidden" name="next" value={{ next }}>
+              {% endif %}
+
               <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Sign in</button>
             </form>
           </div>
