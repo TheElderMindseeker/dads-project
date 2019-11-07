@@ -22,9 +22,28 @@ It is highly recommended to use the following tools to control code quality and 
 
 Both utilities are locked in Pipenv dev-dependencies so it should not be a problem installing them. Pylint is a Python linter and Yapf is a code autoformatter. The `.style.yapf` file which you may find in the root of the directory is a code style declaration for it.
 
+## Setup
+
+Currently, the application will run only in the debug configuration. It will use a `test_db` Postgresql database.
+
+To set up the application, the database must be created. To do so, set up the application with
+
+    export FLASK_APP=livebook_run:app
+
+Then, create the database:
+
+    flask init-db
+
+For development, Migrate should also be initialized. After setting the application and creating the database:
+
+    flask db init
+    # Review the generated scripts here!
+    flask db migrate
+    flask db upgrade
+
 ## Configuration
 
-Currently, there are only two pieces of configuration you need to setup and both are environmental variables: `DADS_DATABASE_URI` and `DADS_TEST_DATABASE_URI`. The former points to the development database of the project and the latter to the testing.
+Currently, there are only two pieces of configuration you need to setup and both are environmental variables: `DADS_DATABASE_URI` and `DADS_TEST_DATABASE_URI`. The former points to the production database of the project and the latter to the testing.
 
 ## Running the Code
 
