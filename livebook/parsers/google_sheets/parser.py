@@ -2,13 +2,15 @@ import gspread
 from google.oauth2 import service_account
 from google.auth.transport.requests import AuthorizedSession
 from livebook.parsers import *
+from os.path import dirname
 
 # If modifying these scopes, delete the file token.pickle.
 scopes = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 # The ID and range of the needed spreadsheet.
 spreadsheet_id = '1PNWun9wY9cFdBs4FbDcnWPh6FGWnvJ6pNluKc1n0cpo'
 # Get credentials from service account file
-creds = service_account.Credentials.from_service_account_file('livebook_client_credentials.json', scopes=scopes)
+creds = service_account.Credentials.from_service_account_file(dirname(__file__) + '/livebook_client_credentials.json',
+                                                              scopes=scopes)
 # Create a client for gspread
 client = gspread.Client(auth=creds)
 # Create a session for it
@@ -46,7 +48,8 @@ def read_stats():
         column_val += 1
 
     global stats_end
-    stats_end = column_val
+    if stats_end != 1:
+        stats_end = column_val
 
     return stats
 
@@ -91,6 +94,10 @@ def read_scene(scene_name):
     return scene
 
 
+def get_scene_names():
+    return [i.title for i in sheet.worksheets()]
+
+
 def test_read():
     values = meta_sheet.col_values(1)
 
@@ -106,6 +113,7 @@ def test_read():
 
 if __name__ == '__main__':
     # test_read()
+    print(get_scene_names())
     stats = read_stats()
     for stat in stats:
         print(stat)

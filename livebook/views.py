@@ -1,9 +1,10 @@
 """Contains application views"""
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, jsonify
 from flask_login import current_user, login_user
 
 from livebook.extensions import bcrypt
 from livebook.models import User, db
+from livebook.parsers.google_sheets.parser import read_stats, read_initial_scenes, get_scene_names, read_scene
 
 views = Blueprint('views', __name__)  # pylint: disable=invalid-name
 
@@ -51,3 +52,35 @@ def login():
         login_user(user, remember=remember)
         return "logged in"
     return "failed to log in"
+
+
+@views.route('/player', methods=['GET'])
+def get_player():
+    """Serve user login page and process login form"""
+    out = {}
+    if current_user is not None and current_user.is_authenticated:
+        out['id'] = current_user.id
+        # TODO: Add other fields for the player
+    return jsonify(out)
+
+
+@views.route('/adventure', methods=['GET'])
+def get_adventure():
+    out = {'stats': [i.__dict__ for i in read_stats()], 'scene_names': get_scene_names()}
+
+    start, ends = read_initial_scenes()
+
+    out['start_scene'] = start
+    out['end_scenes'] = ends
+    return jsonify(out)
+
+
+@views.route('/adventure/scene/<scene>', methods=['GET'])
+def get_scene(scene):
+    out = {}
+    if scene in get_scene_names():
+        scene_info = read_scene(scene)
+        scene_info.parse_text(read_stats())
+        out['description'] = scene_info.text
+        out['options'] = [i.__dict__ for i in scene_info.options]
+    return jsonify(out)

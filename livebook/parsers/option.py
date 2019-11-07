@@ -1,13 +1,13 @@
 class Option:
-    def __init__(self, text, next_scene, flavor):
+    def __init__(self, text, next_scene, prompt):
         self.text = text
-        self.next_scene = next_scene
-        self.flavor = flavor
+        self.next = next_scene
+        self.prompt = prompt
 
     def __str__(self):
         return f"""Option text: {self.text}
-Next Scene: {self.next_scene}
-Flavor: {self.flavor}"""
+Next Scene: {self.next}
+Flavor: {self.prompt}"""
 
     def parse_text(self, stats):
         """
@@ -16,4 +16,4 @@ Flavor: {self.flavor}"""
         """
         for stat in stats:
             self.text = self.text.replace(f"@{stat.alias}", stat.name)
-            self.flavor = self.flavor.replace(f"@{stat.alias}", stat.name)
+            self.prompt = self.prompt.replace(f"@{stat.alias}", stat.name)
