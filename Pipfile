@@ -16,6 +16,7 @@ flask_sqlalchemy = "*"
 flask_login = "*"
 psycopg2 = "*"
 flask-bcrypt = "*"
+sqlalchemy_utils = "*"
 gspread = "*"
 
 [requires]

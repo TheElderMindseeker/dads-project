@@ -1,6 +1,9 @@
 """Database models for the application"""
 # pylint: disable=no-member,too-few-public-methods
+import click
+from flask.cli import with_appcontext
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy_utils.functions import create_database, database_exists
 
 db = SQLAlchemy()  # pylint: disable=invalid-name
 
@@ -29,3 +32,17 @@ class User(db.Model):
 
     def is_authenticated(self):
         return True
+
+
+@click.command('init-db')
+@with_appcontext
+def init_db():
+    """
+    Creates the database (if needed) and re-creates the tables.
+    Use with "flask init-db".
+    """
+    if not database_exists(db.engine.url):
+        create_database(db.engine.url)
+    db.drop_all()
+    db.create_all()
+
