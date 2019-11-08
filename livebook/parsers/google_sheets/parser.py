@@ -48,7 +48,7 @@ def read_stats():
         column_val += 1
 
     global stats_end
-    if stats_end != 1:
+    if stats_end == 1:
         stats_end = column_val
 
     return stats
