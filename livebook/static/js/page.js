@@ -1,5 +1,13 @@
 function chooseOption(optionIndex) {
-    //
+    $.ajax(`/adventure/next/${optionIndex}`, {
+        dataType: 'json',
+        success: function (data, _, _) {
+            setupScene(data)
+        },
+        error: function (_, _, errorThrown) {
+            console.error(`Error occurred on /adventure/next request: ${errorThrown}`)
+        }
+    })
 }
 
 function setupScene(sceneData) {
@@ -12,8 +20,9 @@ function setupScene(sceneData) {
             text: item.text,
             click: function (event) {
                 event.preventDefault()
-                chooseOption(index)
-            }
+                chooseOption($(this).attr('data-option-index'))
+            },
+            'data-option-index': index
         }).appendTo('#optionsList')
     })
 }
@@ -26,6 +35,7 @@ function changeAttributeValue(target, delta) {
 }
 
 function setupAttributes(playerData) {
+    $('#attributeTable').empty()
     currentStats = playerData.current_stats
     for (var stat in currentStats) {
         if (Object.prototype.hasOwnProperty.call(currentStats, stat)) {
@@ -48,7 +58,7 @@ function setupAttributes(playerData) {
                 class: 'btn btn-sm btn-outline-success',
                 click: function (event) {
                     event.preventDefault()
-                    changeAttributeValue($(this).data('target'), +1)
+                    changeAttributeValue($(this).attr('data-target'), +1)
                 },
                 'data-target': `#${stat}Value`,
                 text: '+'
@@ -67,7 +77,7 @@ function initPage(playerData) {
             setupScene(data)
         },
         error: function (_, _, errorThrown) {
-            $('#errorMessage').html(`Error occurred on /adventure/scene request: ${errorThrown}`)
+            console.error(`Error occurred on /adventure/scene request: ${errorThrown}`)
         }
     })
 }
@@ -79,7 +89,7 @@ $(document).ready(function () {
             initPage(data)
         },
         error: function (_, _, errorThrown) {
-            $('#errorMessage').html(`Error occurred on /player request: ${errorThrown}`)
+            console.error(`Error occurred on /player request: ${errorThrown}`)
         }
     })
 })
