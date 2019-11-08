@@ -11,9 +11,9 @@ function chooseOption(optionIndex) {
 }
 
 function setupScene(sceneData) {
-    $('#navText').html(sceneData.description.replace('\n', '<br>'))
+    $('#navText').html(sceneData.description.replace(/\n/g, '<br>'))
+    $('#optionsList').empty()
     sceneData.options.forEach((item, index) => {
-        $('#optionsList').empty()
         $('<a>', {
             href: '#',
             class: 'list-group-item list-group-item-action',
@@ -30,7 +30,16 @@ function setupScene(sceneData) {
 function changeAttributeValue(target, delta) {
     $(target).html(function (_, oldHtml) {
         var value = +oldHtml
-        return value + delta
+        const newValue = value + delta
+        const operation = delta >= 0 ? 'increase' : 'decrease'
+        const attributeAlias = $(target).attr('data-alias')
+        $.ajax(`/${operation}/${attributeAlias}`, {
+            method: 'POST',
+            error: function (_, _, errorThrown) {
+                console.log(`Could not change attribute because of ${errorThrown}`)
+            }
+        })
+        return newValue
     })
 }
 
@@ -39,10 +48,10 @@ function setupAttributes(playerData) {
     currentStats = playerData.current_stats
     for (var stat in currentStats) {
         if (Object.prototype.hasOwnProperty.call(currentStats, stat)) {
-            let tableRow = $('<tr>')
+            const tableRow = $('<tr>')
             tableRow.appendTo('#attributeTable')
             $('<td>', { text: stat }).appendTo(tableRow)
-            let valueCell = $('<td>')
+            const valueCell = $('<td>')
             valueCell.appendTo(tableRow)
             $('<button>', {
                 class: 'btn btn-sm btn-outline-danger',
@@ -53,7 +62,16 @@ function setupAttributes(playerData) {
                 'data-target': `#${stat}Value`,
                 text: '-'
             }).appendTo(valueCell)
-            $('<span>', { id: `${stat}Value`, text: currentStats[stat] }).appendTo(valueCell)
+            $('<span>', {
+                id: `${stat}Value`,
+                text: currentStats[stat],
+                'data-alias': stat,
+                // I know using style attribute is bad
+                // By using it I confirm that I am a bad programmer
+                // I should not use style attribute
+                // Especially in JS code
+                style: 'width: 2.5rem; display: inline-block; text-align: center;'
+            }).appendTo(valueCell)
             $('<button>', {
                 class: 'btn btn-sm btn-outline-success',
                 click: function (event) {
@@ -69,10 +87,9 @@ function setupAttributes(playerData) {
 
 function initPage(playerData) {
     setupAttributes(playerData)
-    let currentScene = playerData.current_scene
+    const currentScene = playerData.current_scene
     $.ajax(`/adventure/scene/${currentScene}`, {
         dataType: 'json',
-        method: 'POST',
         success: function (data, _, _) {
             setupScene(data)
         },
@@ -80,6 +97,17 @@ function initPage(playerData) {
             console.error(`Error occurred on /adventure/scene request: ${errorThrown}`)
         }
     })
+}
+
+function setupOaths(adventureData) {
+    const allOaths = Array()
+    adventureData.stats.forEach((stat) => {
+        allOaths.push(`<b>${stat.alias}:</b>`)
+        stat.oaths.forEach((oath, index) => {
+            allOaths.push(`${index}: ${oath}`)
+        })
+    })
+    $('#navOaths').html(allOaths.join('<br>'))
 }
 
 $(document).ready(function () {
@@ -90,6 +118,15 @@ $(document).ready(function () {
         },
         error: function (_, _, errorThrown) {
             console.error(`Error occurred on /player request: ${errorThrown}`)
+        }
+    })
+    $.ajax('/adventure', {
+        dataType: 'json',
+        success: function (data, _, _) {
+            setupOaths(data)
+        },
+        error: function (_, _, errorThrown) {
+            console.error(`Error occurred on /adventure request: ${errorThrown}`)
         }
     })
 })
