@@ -1,11 +1,19 @@
 """Contains application views"""
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify
 from flask_login import current_user, login_user, login_required
 
 from livebook.extensions import bcrypt
 from livebook.models import User, db, UserAdventure, AttrInfo
+from livebook.parsers.google_sheets.parser import read_stats, read_initial_scenes, get_scene_names, read_scene, \
+    spreadsheet_id
 
 views = Blueprint('views', __name__)  # pylint: disable=invalid-name
+
+# TODO: this method has its flaws, should probably redo tho make it better
+#  At least we got some caching?
+stats = read_stats()
+start_scene, end_scenes = read_initial_scenes()
+scene_names = get_scene_names()
 
 
 @views.route('/')
@@ -28,6 +36,17 @@ def register():
                         password=bcrypt.generate_password_hash(data['password']).decode(),
                         admin=False)
         db.session.add(new_user)
+
+        # TODO: currently we only support one adventure and create the base at registration.
+        #  Probably better redo this part
+        new_adventure = UserAdventure(user=new_user, adventure=spreadsheet_id, scene=start_scene)
+        db.session.add(new_adventure)
+        db.session.commit()
+
+        for stat in stats:
+            new_stat = AttrInfo(user_adventure_id=new_adventure.id, alias=stat.alias, value=stat.default_value)
+            db.session.add(new_stat)
+
         db.session.commit()
         return "registered"
     return "failed to register"
@@ -87,3 +106,83 @@ def scene():
     user_adventure.scene = data['scene']
     db.session.commit()
     return "successfully changed the scene"
+
+
+@views.route('/player', methods=['GET'])
+def get_player():
+    """Serve user login page and process login form"""
+    out = {}
+    if current_user is not None and current_user.is_authenticated:
+        user_adventure = UserAdventure.query.filter_by(user_id=current_user.id).first()
+        user_stats = AttrInfo.query.filter_by(user_adventure_id=user_adventure.id).all()
+
+        out['id'] = current_user.id
+        out['current_scene'] = user_adventure.scene
+        out['current_stats'] = dict()
+        for stat in user_stats:
+            out['current_stats'][stat.alias] = stat.value
+
+    return jsonify(out)
+
+
+@views.route('/adventure', methods=['GET'])
+def get_adventure():
+    out = {
+        'stats': [i.__dict__ for i in stats],
+        'scene_names': scene_names,
+        'start_scene': start_scene,
+        'end_scenes': end_scenes
+    }
+
+    return jsonify(out)
+
+
+# Utility function to get a scene from the adventure
+def get_scene(scene):
+    out = {}
+    if scene in scene_names:
+        scene_info = read_scene(scene)
+        scene_info.parse_text(stats)
+        out['description'] = scene_info.text
+        out['options'] = [i.__dict__ for i in scene_info.options]
+    return out
+
+
+@views.route('/adventure/next/<int:index>', methods=['GET'])
+def next_scene(index):
+    out = {}
+    if current_user is not None and current_user.is_authenticated:
+        user_adventure = UserAdventure.query.filter_by(user_id=current_user.id).first()
+        scene = get_scene(user_adventure.scene)
+        out = get_scene(scene['options'][index]['next'])
+        out['description'] = scene['options'][index]['prompt'] + '\n' + out['description']
+
+        user_adventure.scene = scene['options'][index]['next']
+        db.session.commit()
+    return jsonify(out)
+
+
+@views.route('/adventure/scene/<string:scene>', methods=['GET'])
+def return_scene(scene):
+    return jsonify(get_scene(scene))
+
+
+@views.route('/increase/<string:alias>', methods=['POST'])
+def increase_stat(alias):
+    if current_user is not None and current_user.is_authenticated:
+        user_adventure = UserAdventure.query.filter_by(user_id=current_user.id).first()
+        stat = AttrInfo.query.filter_by(user_adventure_id=user_adventure.id, alias=alias).first()
+        stat.value += 1
+        db.session.commit()
+    return jsonify({}), 200
+
+
+@views.route('/decrease/<string:alias>', methods=['POST'])
+def decrease_stat(alias):
+    if current_user is not None and current_user.is_authenticated:
+        user_adventure = UserAdventure.query.filter_by(user_id=current_user.id).first()
+        stat = AttrInfo.query.filter_by(user_adventure_id=user_adventure.id, alias=alias).first()
+        if stat.value > 0:
+            stat.value -= 1
+            db.session.commit()
+    return jsonify({}), 200
