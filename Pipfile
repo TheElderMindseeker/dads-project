@@ -17,6 +17,9 @@ flask_login = "*"
 psycopg2 = "*"
 flask-bcrypt = "*"
 sqlalchemy_utils = "*"
+google-api-python-client="*"
+google-auth-httplib2 = "*"
+google-auth-oauthlib = "*"
 gspread = "*"
 
 [requires]
