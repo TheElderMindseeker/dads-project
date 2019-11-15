@@ -30,7 +30,7 @@ function setupScene(sceneData) {
 function changeAttributeValue(target, delta) {
     $(target).html(function (_, oldHtml) {
         var value = +oldHtml
-        const newValue = value + delta
+        const newValue = Math.max(0, value + delta)
         const operation = delta >= 0 ? 'increase' : 'decrease'
         const attributeAlias = $(target).attr('data-alias')
         $.ajax(`/${operation}/${attributeAlias}`, {
@@ -43,55 +43,65 @@ function changeAttributeValue(target, delta) {
     })
 }
 
-function setupAttributes(playerData) {
+function setupAttributes(statsData) {
     $('#attributeTable').empty()
-    currentStats = playerData.current_stats
-    for (var stat in currentStats) {
-        if (Object.prototype.hasOwnProperty.call(currentStats, stat)) {
-            const tableRow = $('<tr>')
-            tableRow.appendTo('#attributeTable')
-            $('<td>', { text: stat }).appendTo(tableRow)
-            const valueCell = $('<td>')
-            valueCell.appendTo(tableRow)
-            $('<button>', {
-                class: 'btn btn-sm btn-outline-danger',
-                click: function (event) {
-                    event.preventDefault()
-                    changeAttributeValue($(this).data('target'), -1)
-                },
-                'data-target': `#${stat}Value`,
-                text: '-'
-            }).appendTo(valueCell)
-            $('<span>', {
-                id: `${stat}Value`,
-                text: currentStats[stat],
-                'data-alias': stat,
-                // I know using style attribute is bad
-                // By using it I confirm that I am a bad programmer
-                // I should not use style attribute
-                // Especially in JS code
-                style: 'width: 2.5rem; display: inline-block; text-align: center;'
-            }).appendTo(valueCell)
-            $('<button>', {
-                class: 'btn btn-sm btn-outline-success',
-                click: function (event) {
-                    event.preventDefault()
-                    changeAttributeValue($(this).attr('data-target'), +1)
-                },
-                'data-target': `#${stat}Value`,
-                text: '+'
-            }).appendTo(valueCell)
+    statsData.forEach(stat => {
+        const tableRow = $('<tr>')
+        tableRow.appendTo('#attributeTable')
+        $('<td>', { text: stat.name }).appendTo(tableRow)
+        const valueCell = $('<td>')
+        valueCell.appendTo(tableRow)
+        $('<button>', {
+            class: 'btn btn-sm btn-outline-danger',
+            click: function (event) {
+                event.preventDefault()
+                changeAttributeValue($(this).attr('data-target'), -1)
+            },
+            'data-target': `#${stat.alias}`,
+            text: '-'
+        }).appendTo(valueCell)
+        $('<span>', {
+            id: `${stat.alias}`,
+            text: stat.default_value,
+            'data-alias': stat.alias,
+            // I know using style attribute is bad
+            // By using it I confirm that I am a bad programmer
+            // I should not use style attribute
+            // Especially in JS code
+            style: 'width: 2.5rem; display: inline-block; text-align: center;'
+        }).appendTo(valueCell)
+        $('<button>', {
+            class: 'btn btn-sm btn-outline-success',
+            click: function (event) {
+                event.preventDefault()
+                changeAttributeValue($(this).attr('data-target'), +1)
+            },
+            'data-target': `#${stat.alias}`,
+            text: '+'
+        }).appendTo(valueCell)
+    })
+    $.ajax('/player', {
+        dataType: 'json',
+        success: function (playerData, _, _) {
+            statsData = playerData.current_stats
+            for (var stat in statsData) {
+                if (Object.prototype.hasOwnProperty.call(statsData, stat)) {
+                    $(`#${stat}`).html(statsData[stat])
+                }
+            }
+        },
+        error: function (_, _, errorThrown) {
+            console.error(`Error occurred on /player request: ${errorThrown}`)
         }
-    }
+    })
 }
 
 function initPage(playerData) {
-    setupAttributes(playerData)
     const currentScene = playerData.current_scene
     $.ajax(`/adventure/scene/${currentScene}`, {
         dataType: 'json',
-        success: function (data, _, _) {
-            setupScene(data)
+        success: function (sceneData, _, _) {
+            setupScene(sceneData)
         },
         error: function (_, _, errorThrown) {
             console.error(`Error occurred on /adventure/scene request: ${errorThrown}`)
@@ -113,8 +123,8 @@ function setupOaths(adventureData) {
 $(document).ready(function () {
     $.ajax('/player', {
         dataType: 'json',
-        success: function (data, _, _) {
-            initPage(data)
+        success: function (playerData, _, _) {
+            initPage(playerData)
         },
         error: function (_, _, errorThrown) {
             console.error(`Error occurred on /player request: ${errorThrown}`)
@@ -122,8 +132,9 @@ $(document).ready(function () {
     })
     $.ajax('/adventure', {
         dataType: 'json',
-        success: function (data, _, _) {
-            setupOaths(data)
+        success: function (adventureData, _, _) {
+            setupAttributes(adventureData.stats)
+            setupOaths(adventureData)
         },
         error: function (_, _, errorThrown) {
             console.error(`Error occurred on /adventure request: ${errorThrown}`)
