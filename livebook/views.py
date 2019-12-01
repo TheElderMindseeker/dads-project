@@ -52,27 +52,19 @@ def register():
     user_check = User.query.filter_by(email=data['email']).first()
     if user_check is None:
         # pylint: disable=no-member
-        new_user = User(
-            email=data['email'],
-            password=bcrypt.generate_password_hash(
-                data['password']).decode(),
-            admin=False)
+        new_user = User(email=data['email'],
+                        password=bcrypt.generate_password_hash(data['password']).decode(),
+                        admin=False)
         db.session.add(new_user)
 
         # TODO: currently we only support one adventure and create the base at registration.
         #  Probably better redo this part
-        new_adventure = UserAdventure(
-            user=new_user,
-            adventure=spreadsheet_id,
-            scene=start_scene)
+        new_adventure = UserAdventure(user=new_user, adventure=spreadsheet_id, scene=start_scene)
         db.session.add(new_adventure)
         db.session.commit()
 
         for stat in stats:
-            new_stat = AttrInfo(
-                user_adventure_id=new_adventure.id,
-                alias=stat.alias,
-                value=stat.default_value)
+            new_stat = AttrInfo(user_adventure_id=new_adventure.id, alias=stat.alias, value=stat.default_value)
             db.session.add(new_stat)
 
         db.session.commit()
@@ -92,8 +84,7 @@ def login():
     data = request.form
     user = User.query.filter_by(email=data['email']).first()
     remember = data.get("remember", False) == 'on'
-    if user is not None and bcrypt.check_password_hash(
-            user.password, data['password']):
+    if user is not None and bcrypt.check_password_hash(user.password, data['password']):
         login_user(user, remember=remember)
         next_page = data.get('next')
         if next_page is not None:
@@ -120,10 +111,8 @@ def get_player():
     return_code = 401
 
     if current_user is not None and current_user.is_authenticated:
-        user_adventure = UserAdventure.query.filter_by(
-            user_id=current_user.id).first()
-        user_stats = AttrInfo.query.filter_by(
-            user_adventure_id=user_adventure.id).all()
+        user_adventure = UserAdventure.query.filter_by(user_id=current_user.id).first()
+        user_stats = AttrInfo.query.filter_by(user_adventure_id=user_adventure.id).all()
 
         out['id'] = current_user.id
         out['current_scene'] = user_adventure.scene
@@ -176,18 +165,16 @@ def next_scene(index):
 
     if current_user is not None and current_user.is_authenticated:
         return_code = 400
-        user_adventure = UserAdventure.query.filter_by(
-            user_id=current_user.id).first()
+        user_adventure = UserAdventure.query.filter_by(user_id=current_user.id).first()
         scene = scenes.get(user_adventure.scene, None)
         if scene is not None:
-            if scene['options'].get(index, None) is not None:
-                out = scenes[scene['options'][index]['next']]
-                out['description'] = scene['options'][index]['prompt'] + \
-                    '\n' + out['description']
+            out = scenes[scene['options'][index]['next']].copy()
+            out['description'] = scene['options'][index]['prompt'] + \
+                '\n' + out['description']
 
-                user_adventure.scene = scene['options'][index]['next']
-                db.session.commit()
-                return_code = 200
+            user_adventure.scene = scene['options'][index]['next']
+            db.session.commit()
+            return_code = 200
 
     return jsonify(out), return_code
 
@@ -217,11 +204,8 @@ def increase_stat(alias):
     """
     return_code = 401
     if current_user is not None and current_user.is_authenticated:
-        user_adventure = UserAdventure.query.filter_by(
-            user_id=current_user.id).first()
-        stat = AttrInfo.query.filter_by(
-            user_adventure_id=user_adventure.id,
-            alias=alias).first()
+        user_adventure = UserAdventure.query.filter_by(user_id=current_user.id).first()
+        stat = AttrInfo.query.filter_by(user_adventure_id=user_adventure.id, alias=alias).first()
         stat.value += 1
         db.session.commit()
         return_code = 200
@@ -238,11 +222,8 @@ def decrease_stat(alias):
     """
     return_code = 401
     if current_user is not None and current_user.is_authenticated:
-        user_adventure = UserAdventure.query.filter_by(
-            user_id=current_user.id).first()
-        stat = AttrInfo.query.filter_by(
-            user_adventure_id=user_adventure.id,
-            alias=alias).first()
+        user_adventure = UserAdventure.query.filter_by(user_id=current_user.id).first()
+        stat = AttrInfo.query.filter_by(user_adventure_id=user_adventure.id, alias=alias).first()
         return_code = 200
         if stat.value > 0:
             stat.value -= 1
