@@ -9,11 +9,27 @@ from livebook.parsers.google_sheets.parser import read_stats, read_initial_scene
 
 views = Blueprint('views', __name__)  # pylint: disable=invalid-name
 
-# TODO: this method has its flaws, should probably redo tho make it better
-#  At least we got some caching?
-stats = read_stats()
-start_scene, end_scenes = read_initial_scenes()
-scene_names = get_scene_names()
+stats = None
+start_scene = None
+end_scenes = None
+scene_names = None
+scenes = None
+
+
+@views.before_app_first_request
+def prepare_cache():
+    # We only have a single adventure planned, so this should do decently enough
+    # Also, slows down the first access to the page
+    global stats
+    global start_scene
+    global end_scenes
+    global scene_names
+    global scenes
+
+    stats = read_stats()
+    start_scene, end_scenes = read_initial_scenes()
+    scene_names = get_scene_names()
+    scenes = {scene: get_scene(scene) for scene in scene_names}
 
 
 @views.route('/')
@@ -79,35 +95,6 @@ def show_adventure():
     return render_template("book_page.j2")
 
 
-@views.route('/attribute', methods=['GET', 'POST'])
-def attribute():
-    data = request.json
-    user_adventure = UserAdventure.query.filter_by(
-        user_id=data['user_id'], adventure=data['adventure']).first_or_404(description='no such user or adventure')
-    attr_info = AttrInfo.query.filter_by(
-        user_adventure_id=user_adventure.id,
-        alias=data['alias']).first_or_404(description='no such user, adventure or attribute')
-    if request.method == 'GET':
-        return f'<h1>The value of {data["alias"]} is {attr_info.value}</h1>'
-
-    attr_info.value = data['value']
-    db.session.commit()
-    return "successfully changed the attr"
-
-
-@views.route('/scene', methods=['GET', 'POST'])
-def scene():
-    data = request.json
-    user_adventure = UserAdventure.query.filter_by(
-        user_id=data['user_id'], adventure=data['adventure']).first_or_404(description='no such user or adventure')
-    if request.method == 'GET':
-        return f'<h1>The scene is {user_adventure.scene}</h1>'
-
-    user_adventure.scene = data['scene']
-    db.session.commit()
-    return "successfully changed the scene"
-
-
 @views.route('/player', methods=['GET'])
 def get_player():
     """Serve user login page and process login form"""
@@ -153,8 +140,8 @@ def next_scene(index):
     out = {}
     if current_user is not None and current_user.is_authenticated:
         user_adventure = UserAdventure.query.filter_by(user_id=current_user.id).first()
-        scene = get_scene(user_adventure.scene)
-        out = get_scene(scene['options'][index]['next'])
+        scene = scenes[user_adventure.scene]
+        out = scenes[scene['options'][index]['next']]
         out['description'] = scene['options'][index]['prompt'] + '\n' + out['description']
 
         user_adventure.scene = scene['options'][index]['next']
@@ -164,7 +151,7 @@ def next_scene(index):
 
 @views.route('/adventure/scene/<string:scene>', methods=['GET'])
 def return_scene(scene):
-    return jsonify(get_scene(scene))
+    return jsonify(scenes[scene])
 
 
 @views.route('/increase/<string:alias>', methods=['POST'])
