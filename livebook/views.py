@@ -170,7 +170,7 @@ def next_scene(index):
         if scene is not None:
             out = scenes[scene['options'][index]['next']].copy()
             out['description'] = scene['options'][index]['prompt'] + \
-                '\n' + out['description']
+                '\n\n' + out['description']
 
             user_adventure.scene = scene['options'][index]['next']
             db.session.commit()
