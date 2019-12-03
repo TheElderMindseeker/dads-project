@@ -36,7 +36,7 @@ def prepare_cache():
     scenes = {scene: get_scene(scene) for scene in scene_names}
 
 
-@views.route('/')
+@views.route('/hello')
 def hello_world():
     """
     Outputs hello world greeting to the client
@@ -72,17 +72,17 @@ def register():
             db.session.add(new_stat)
 
         db.session.commit()
-        return "registered"
+        return redirect(url_for("views.show_adventure"))
     return "failed to register"
 
 
-@views.route('/login', methods=['GET', 'POST'])
+@views.route('/', methods=['GET', 'POST'])
 def login():
     """
     Serve user login page and process login form
     """
     if current_user is not None and current_user.is_authenticated:
-        return redirect("page")
+        return redirect(url_for("views.show_adventure"))
 
     if request.method == 'GET':
         return render_template('login.j2', next=request.args.get('next'))
@@ -95,7 +95,7 @@ def login():
         next_page = data.get('next')
         if next_page is not None:
             return redirect(next_page)
-        return redirect("page")
+        return redirect(url_for("views.show_adventure"))
     return "failed to log in"
 
 
