@@ -38,13 +38,17 @@ def prepare_cache():
 
 @views.route('/')
 def hello_world():
-    """Outputs hello world greeting to the client"""
+    """
+    Outputs hello world greeting to the client
+    """
     return '<h1>Hello, World!</h1>'
 
 
 @views.route('/register', methods=['GET', 'POST'])
 def register():
-    """Serve user registration page and process register form"""
+    """
+    Serve user registration page and process register form
+    """
     if request.method == 'GET':
         return render_template('register.j2')
 
@@ -74,9 +78,11 @@ def register():
 
 @views.route('/login', methods=['GET', 'POST'])
 def login():
-    """Serve user login page and process login form"""
+    """
+    Serve user login page and process login form
+    """
     if current_user is not None and current_user.is_authenticated:
-        return "already logged in"
+        return redirect("page")
 
     if request.method == 'GET':
         return render_template('login.j2', next=request.args.get('next'))
@@ -89,7 +95,7 @@ def login():
         next_page = data.get('next')
         if next_page is not None:
             return redirect(next_page)
-        return "logged in"
+        return redirect("page")
     return "failed to log in"
 
 
@@ -137,7 +143,7 @@ def get_adventure():
         'end_scenes': end_scenes
     }
 
-    return jsonify(out)
+    return jsonify(out), 200
 
 
 # Utility function to get a scene from the adventure
