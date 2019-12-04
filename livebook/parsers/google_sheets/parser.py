@@ -1,6 +1,8 @@
 import gspread
+import os
 from google.oauth2 import service_account
 from google.auth.transport.requests import AuthorizedSession
+from json import loads
 from livebook.parsers import *
 from os.path import dirname
 
@@ -9,8 +11,15 @@ scopes = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 # The ID and range of the needed spreadsheet.
 spreadsheet_id = '1PNWun9wY9cFdBs4FbDcnWPh6FGWnvJ6pNluKc1n0cpo'
 # Get credentials from service account file
-creds = service_account.Credentials.from_service_account_file(dirname(__file__) + '/livebook_client_credentials.json',
-                                                              scopes=scopes)
+creds = None
+try:
+    creds = service_account.Credentials.from_service_account_file(dirname(__file__) + '/livebook_client_credentials.json',
+                                                                scopes=scopes)
+except FileNotFoundError:
+    cred_var = os.environ['GOOGLE_CREDS']
+    cred_info = loads(cred_var)
+    creds = service_account.Credentials.from_service_account_info(cred_info)
+
 # Create a client for gspread
 client = gspread.Client(auth=creds)
 # Create a session for it
