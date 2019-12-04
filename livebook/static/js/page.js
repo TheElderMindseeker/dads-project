@@ -27,12 +27,18 @@ function setupScene(sceneData) {
     })
 }
 
-function changeAttributeValue(target, delta) {
+function changeAttributeValue(statAlias, delta) {
+    target = `#${statAlias}`
     $(target).html(function (_, oldHtml) {
-        var value = +oldHtml
-        const newValue = Math.max(0, value + delta)
-        const operation = delta >= 0 ? 'increase' : 'decrease'
-        const attributeAlias = $(target).attr('data-alias')
+        let oldValue = +oldHtml
+        let newValue = Math.max(0, oldValue + delta)
+
+        oathIndex = Math.min(newValue, $(this).attr('data-max'))
+        $(`.${statAlias}-oath`).hide()
+        $(`#${statAlias}-oath-${oathIndex}`).show()
+
+        let operation = delta >= 0 ? 'increase' : 'decrease'
+        let attributeAlias = $(target).attr('data-alias')
         $.ajax(`/${operation}/${attributeAlias}`, {
             method: 'POST',
             error: function (_, _, errorThrown) {
@@ -57,13 +63,14 @@ function setupAttributes(statsData) {
                 event.preventDefault()
                 changeAttributeValue($(this).attr('data-target'), -1)
             },
-            'data-target': `#${stat.alias}`,
+            'data-target': `${stat.alias}`,
             text: '-'
         }).appendTo(valueCell)
         $('<span>', {
             id: `${stat.alias}`,
             text: stat.default_value,
             'data-alias': stat.alias,
+            'data-max': stat.oaths.length - 1,
             // I know using style attribute is bad
             // By using it I confirm that I am a bad programmer
             // I should not use style attribute
@@ -76,7 +83,7 @@ function setupAttributes(statsData) {
                 event.preventDefault()
                 changeAttributeValue($(this).attr('data-target'), +1)
             },
-            'data-target': `#${stat.alias}`,
+            'data-target': `${stat.alias}`,
             text: '+'
         }).appendTo(valueCell)
     })
@@ -110,14 +117,22 @@ function initPage(playerData) {
 }
 
 function setupOaths(adventureData) {
-    const allOaths = Array()
-    adventureData.stats.forEach((stat) => {
-        allOaths.push(`<b>${stat.alias}:</b>`)
-        stat.oaths.forEach((oath, index) => {
-            allOaths.push(`${index}: ${oath}`)
+    const allOaths = $('<ul>').appendTo($('#navOaths'))
+    adventureData.stats.forEach(stat => {
+        // Index of an oath in the array is the stat value necessary to activate the oath
+        stat.oaths.forEach((oath, targetStatValue) => {
+            $('<li>', {
+                class: `${stat.alias}-oath`,
+                id: `${stat.alias}-oath-${targetStatValue}`,
+                text: `${stat.name}: ${oath}`
+            }).hide().appendTo(allOaths)
         })
+        statValue = +$(`span#${stat.alias}`).text()
+        console.log(statValue)
+        oathIndex = Math.max(0, Math.min(statValue, stat.oaths.length - 1))
+        console.log(oathIndex)
+        $(`#${stat.alias}-oath-${oathIndex}`).show()
     })
-    $('#navOaths').html(allOaths.join('<br>'))
 }
 
 $(document).ready(function () {
