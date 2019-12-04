@@ -28,7 +28,7 @@ Currently, the application will run only in the debug configuration. It will use
 
 To set up the application, the database must be created. To do so, set up the application with
 
-    export FLASK_APP=livebook_run:app
+    export FLASK_APP="livebook_run:create_app()"
 
 Then, create the database:
 
