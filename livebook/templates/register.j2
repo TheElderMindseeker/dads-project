@@ -20,15 +20,21 @@
                 <label for="inputPassword">Password</label>
               </div>
 
-              {# <div class="form-label-group">
-                <input type="password" id="inputPasswordConfirm" name="passwordConfirm" class="form-control"
-                  placeholder="Confirm Password" required>
-                <label for="inputPasswordConfirm">Confirm password</label>
-              </div> #}
-
               <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Sign up</button>
-              <button class="btn btn-lg btn-primary btn-block text-uppercase" type="button"
-                onclick="location.href='{{ url_for('views.login') }}';">Sign in</button>
+
+              {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                  <div class="form-label-group">
+                    {% for message in messages %}
+                      <label class="text-danger">{{ message }}</label>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              {% endwith %}
+
+              <label class="text-muted pt-4">
+                Already have an account? <a href="{{ url_for('views.login') }}">Sign In</a>
+              </label>
             </form>
           </div>
         </div>

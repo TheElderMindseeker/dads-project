@@ -1,5 +1,5 @@
 """Contains application views"""
-from flask import Blueprint, render_template, request, redirect, url_for, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify, flash
 from flask_login import current_user, login_user, login_required
 
 from livebook.extensions import bcrypt
@@ -73,7 +73,9 @@ def register():
 
         db.session.commit()
         return redirect(url_for("views.show_adventure"))
-    return "failed to register"
+
+    flash("Failed to register: user already exists")
+    return render_template('register.j2')
 
 
 @views.route('/', methods=['GET', 'POST'])
@@ -96,7 +98,9 @@ def login():
         if next_page is not None:
             return redirect(next_page)
         return redirect(url_for("views.show_adventure"))
-    return "failed to log in"
+
+    flash("Failed to login: invalid credentials")
+    return render_template('login.j2', next=data.get('next'))
 
 
 @views.route('/page', methods=['GET'])
