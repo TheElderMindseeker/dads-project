@@ -36,6 +36,8 @@ Then, create the database:
 
     flask init-db
 
+The code also requires Google Sheets service account with access to the google sheets adventure. The credentials file can be put into the parser folder or into the GOOGLE_CREDS environmental variable.
+
 ## Configuration
 
 Currently, there are only two pieces of configuration you need to setup and both are environmental variables: `DADS_DATABASE_URI` and `DADS_TEST_DATABASE_URI`. The former points to the production database of the project and the latter to the testing.
