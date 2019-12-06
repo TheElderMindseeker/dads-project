@@ -36,11 +36,6 @@ Then, create the database:
 
     flask init-db
 
-To run:
-```
-flask run
-```
-
 ## Configuration
 
 Currently, there are only two pieces of configuration you need to setup and both are environmental variables: `DADS_DATABASE_URI` and `DADS_TEST_DATABASE_URI`. The former points to the production database of the project and the latter to the testing.
