@@ -38,7 +38,7 @@ Then, create the database:
 
 To run:
 ```
-    flask run
+flask run
 ```
 
 ## Configuration
