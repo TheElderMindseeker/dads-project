@@ -50,7 +50,7 @@ def read_stats():
         column = meta_sheet.col_values(column_val)
 
         if column:
-            new_stat = Stat(column[0], column[1], column[2], column[3:])
+            new_stat = Stat(column[0].strip(), column[1], int(column[2]), column[3:])
 
             stats.append(new_stat)
 
@@ -71,8 +71,8 @@ def read_initial_scenes():
     """
     info = meta_sheet.col_values(stats_end)
 
-    start = info[0]
-    ends = info[1:]
+    start = info[0].strip()
+    ends = list(map(lambda x: x.strip(), info[1:]))
 
     return start, ends
 
@@ -95,7 +95,7 @@ def read_scene(scene_name):
 
         if len(option) > 0:
             flavor = option[2] if len(option) > 2 else ""
-            options.append(Option(option[0], option[1], flavor))
+            options.append(Option(option[0], option[1].strip(), flavor))
 
         row += 1
 
@@ -133,6 +133,7 @@ if __name__ == '__main__':
     print(scene.text)
     for opt in scene.options:
         print(opt)
-    # TODO: No idea if this is really needed
-    if client.session is not None:
-        client.session.close()
+
+# TODO: No idea if this is really needed
+if client.session is not None:
+    client.session.close()
