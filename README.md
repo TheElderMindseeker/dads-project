@@ -2,6 +2,8 @@
 
 This is a simple web application created during Distributed and Decentralized Systems course by Daniil Botnarenku, Alexey Gospodchikov and Nick Gaivoronsky.
 
+The deployed version of the project is available at https://dads-project.herokuapp.com
+
 ## Dependencies
 
 This project uses Pipenv to track its dependencies. Pipenv file is situated in the root directory. If you want to know more about Pipenv, look [here](https://github.com/pypa/pipenv). Generally, to install all required dependencies use:
@@ -34,12 +36,10 @@ Then, create the database:
 
     flask init-db
 
-For development, Migrate should also be initialized. After setting the application and creating the database:
-
-    flask db init
-    # Review the generated scripts here!
-    flask db migrate
-    flask db upgrade
+To run:
+```
+    flask run
+```
 
 ## Configuration
 
