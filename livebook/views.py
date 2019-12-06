@@ -176,8 +176,6 @@ def next_scene(index):
     if current_user is not None and current_user.is_authenticated:
         return_code = 400
         user_adventure = UserAdventure.query.filter_by(user_id=current_user.id).first()
-        print(user_adventure.scene)
-        print(start_scene)
         scene = scenes.get(user_adventure.scene, None)
         if scene is not None:
             out = scenes[scene['options'][index]['next']].copy()
